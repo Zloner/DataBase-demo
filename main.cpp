@@ -52,6 +52,7 @@ int main(){
     InitDBMS(DBMS);
 
     while(1){
+        
         cout << ">";
         cin >> op;
         if(op == "CREATE" || op == "create"){

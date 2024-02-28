@@ -2,6 +2,7 @@
 
 using namespace std;
 
+
 DataBase::DataBase(string db_name){
     char* db_path;
     db_path = (char*)malloc(sizeof(char) * 64);
