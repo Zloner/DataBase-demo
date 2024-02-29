@@ -2,10 +2,14 @@
 #define __DATABASE_H__
 
 #include <iostream>
+#include <iomanip>
 #include <string>
+#include <vector>
 #include <map>
 #include <unistd.h>
 #include "table.h"
+
+#define INIT_CAPACITY 5
 
 using namespace std;
 
@@ -17,6 +21,7 @@ public:
     Table* tables;
     int tb_capacity;
     int table_num;
+    int index;
 
     DataBase(string db_name);
     void Delete_Database();
@@ -25,7 +30,7 @@ public:
 };
 
 typedef struct{
-    DataBase* databases;
+    vector<DataBase*> databases;
     map<string, int> db_names;
     int db_num;
     int db_capacity;
@@ -33,6 +38,11 @@ typedef struct{
 
 void InitDBMS(DataBases* dbms);
 void ExpandDBMS(DataBases* dbms);
+void ClearDBMS(DataBases* dbms);
 void create_db(DataBases* dbms, string name);
+void delete_db(DataBases* dbms, string name);
+void show_db(DataBases* dbms);
+void alter_db(DataBases* dbms, string name, string new_name);
+void select_db(DataBases* dbms, string name);
 
 #endif

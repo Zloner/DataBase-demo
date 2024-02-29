@@ -1,8 +1,6 @@
-run:main.o database.o table.o
-	g++ $^ -o main
-%.o:%.c
-	g++ -c $<
-
+run:function.cpp database.cpp table.cpp main.cpp
+	g++ -g $^ -o main
+	
 .PHONY:clean
 clean:
 	rm -f *.o main

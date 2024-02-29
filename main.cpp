@@ -1,40 +1,7 @@
 #include <iostream>
-#include "database.h"
+#include "function.h"
 
 using namespace std;
-
-void Create(DataBases* dbms){
-    string object;
-    cin >> object;
-    if(object == "database" || object == "DATABASE") {
-        string name;
-        cin >> name;
-        create_db(dbms, name);
-    }
-    else if(object == "table" || object == "TABLE"){
-
-    }
-    else{
-        cout << "illegal instruction" << endl;
-    }
-    cout << "create" << endl;
-    return;
-}
-
-void Delete(){
-    cout << "delete" << endl;
-    return;
-}
-
-void Alter(){
-    cout << "alter" << endl;
-    return;
-}
-
-void Select(){
-    cout << "select" << endl;
-    return;
-}
 
 int main(){
 
@@ -59,16 +26,20 @@ int main(){
             Create(DBMS);
         }
         else if(op == "DELETE" || op == "delete"){
-            Delete();
+            Delete(DBMS);
         }
         else if(op == "ALTER" || op == "alter"){
-            Alter();
+            Alter(DBMS);
         }
         else if(op == "SELECT" || op == "select"){
-            Select();
+            Select(DBMS);
+        }
+        else if(op == "SHOW" || op == "show"){
+            Show(DBMS);
         }
         else if(op == "EXIT" || op == "exit"){
-            cout << "exit DBMS" << endl;
+            cout << "== EXIT DBMS ==" << endl;
+            ClearDBMS(DBMS);
             free(DBMS);
             DBMS = NULL;
             break;
