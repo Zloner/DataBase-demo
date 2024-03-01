@@ -9,40 +9,61 @@
 #include <unistd.h>
 #include "table.h"
 
-#define INIT_CAPACITY 5
+
 
 using namespace std;
 
 class DataBase{
-public:
+private:
     string path;
     string name;
-    map<string, int> tb_names;
-    Table* tables;
-    int tb_capacity;
-    int table_num;
     int index;
 
+    map<string, int> tb_names;
+    vector<Table*> tables;
+    int tb_capacity;
+    int tb_num;
+
+public:
     DataBase(string db_name);
-    void Delete_Database();
-    void Alter_Database();
-    Table Find_Table();
+    ~DataBase();
+    void Show_Info();
+    string GetName();
+    void Rename(string new_name);
+    void ModifyIndex(char mode, int x);
+    void UpdatePath(string new_path);
+    string GetPath();
+    void ExpandDB();
+
+    void create_tb(string name);
+    
 };
 
-typedef struct{
+class DataBases{
+private:
+    string db_path;
+
     vector<DataBase*> databases;
     map<string, int> db_names;
     int db_num;
     int db_capacity;
-}DataBases;
 
-void InitDBMS(DataBases* dbms);
-void ExpandDBMS(DataBases* dbms);
-void ClearDBMS(DataBases* dbms);
-void create_db(DataBases* dbms, string name);
-void delete_db(DataBases* dbms, string name);
-void show_db(DataBases* dbms);
-void alter_db(DataBases* dbms, string name, string new_name);
-void select_db(DataBases* dbms, string name);
+public:
+    DataBases();
+    ~DataBases();
+    void ExpandDBMS();
+
+    void create_db(string name);
+    void drop_db(string name);
+    void show_db();
+    void alter_db(string name, string new_name);
+    void select_db(string name);
+    bool exist_db(string name);
+    void use_db(string name);
+
+    void create_tb_port();
+};
+
+
 
 #endif

@@ -18,139 +18,248 @@ DataBase::DataBase(string db_name){
 
     tb_names.clear();
     tb_capacity = INIT_CAPACITY;
-    tables = (Table*)malloc(sizeof(Table) * tb_capacity);
-    table_num = 0;
-
-}
-void DataBase::Delete_Database(){
-
-}
-void DataBase::Alter_Database(){
-
-}
-Table DataBase::Find_Table(){
+    tables.reserve(tb_capacity);
+    tb_num = 0;
 
 }
 
-void InitDBMS(DataBases* dbms){
-    dbms->db_num = 0;
-    dbms->db_capacity = INIT_CAPACITY;
-    dbms->db_names.clear();
-    dbms->databases.reserve(dbms->db_capacity);
-}
-
-void ExpandDBMS(DataBases* dbms){
-    dbms->db_capacity *= 2;
-    dbms->databases.reserve(dbms->db_capacity);
-}
-
-void ClearDBMS(DataBases* dbms){
-    for(int i = 0; i < dbms->databases.size(); i++){
-        delete(dbms->databases[i]);
+DataBase::~DataBase(){
+    for(int i = 0; i < tables.size(); i++){
+        delete(tables[i]);
     }
-    vector<DataBase*>().swap(dbms->databases);
+
+    vector<Table*>().swap(tables);
 }
 
-void create_db(DataBases* dbms, string name){
+void DataBase::Show_Info(){
+    cout << "------------------------------------------------------------------------" << endl;
+    cout << "|" << std::left << setw(20) << "Name" << "|" << std::left << setw(50) << name << "|" << endl;
+    cout << "------------------------------------------------------------------------" << endl;
+    cout << "|" << std::left << setw(20) << "Index" << "|" << std::left << setw(50) << index << "|" << endl;
+    cout << "------------------------------------------------------------------------" << endl;
+    cout << "|" << std::left << setw(20) << "Path" << "|" << std::left << setw(50) << path << "|" << endl;
+    cout << "------------------------------------------------------------------------" << endl;
+    cout << "|" << std::left << setw(20) << "Table capacity" << "|" << std::left << setw(50) << tb_capacity << "|" << endl;
+    cout << "------------------------------------------------------------------------" << endl;
+    cout << "|" << std::left << setw(20) << "Table num" << "|" << std::left << setw(50) << tb_num << "|" << endl;
+    cout << "------------------------------------------------------------------------" << endl;
+}
 
-    if(dbms->db_num == dbms->db_capacity)
-        ExpandDBMS(dbms);
+string DataBase::GetName(){
+    return name;
+}
+
+void DataBase::ModifyIndex(char mode, int x){
+    if(mode == 'J'){
+        index = index + x;
+    }
+    else if(mode == 'Z'){
+        index = x;
+    }
+}
+
+void DataBase::Rename(string new_name){
+    name = new_name;
+    return;
+}
+
+void DataBase::UpdatePath(string new_path){
+    path = new_path;
+}
+
+string DataBase::GetPath(){
+    return path;
+}
+
+void DataBase::ExpandDB(){
+    tb_capacity *= 2;
+    tables.reserve(tb_capacity);
+}
+
+void DataBase::create_tb(string name){
+    if(tb_num == tb_capacity)
+        this->ExpandDB();
     
-    if(dbms->db_names.find(name) != dbms->db_names.end()){
-        dbms->db_names[name]++;
-        name = name + '(' + to_string(dbms->db_names[name]) + ')';
+    string tmp = name;
+    while(tb_names.find(tmp) != tb_names.end()){
+        tmp = name;
+        tb_names[tmp]++;
+        tmp = tmp + '(' + to_string(tb_names[tmp]) + ')';
     }
+    name = tmp;
 
-    dbms->db_names.insert(map<string, int>::value_type(name, 0));
+    tb_names[name] = 0;
+
+    Table* tb = new Table(name);
+    tb->Create();
+    tb->UpdatePath(this->GetPath() + '/' + name);
+
+    tables[tb_num] = tb;
+    tb_num++;
+
+    cout << "Table \"" << name << "\" has been created!" << endl;
+}
+
+
+
+
+DataBases::DataBases(){
+    db_num = 0;
+    db_capacity = INIT_CAPACITY;
+    db_names.clear();
+    databases.reserve(db_capacity);
+    db_path = "";
+}
+
+DataBases::~DataBases(){
+    for(int i = 0; i < databases.size(); i++){
+        delete(databases[i]);
+    }
+    vector<DataBase*>().swap(databases);
+}
+
+void DataBases::ExpandDBMS(){
+    db_capacity *= 2;
+    databases.reserve(db_capacity);
+}
+
+void DataBases::create_db(string name){
+
+    if(db_num == db_capacity)
+        this->ExpandDBMS();
+    
+    string tmp = name;
+    while(db_names.find(tmp) != db_names.end()){
+        tmp = name;
+        db_names[tmp]++;
+        tmp = tmp + '(' + to_string(db_names[tmp]) + ')';
+    }
+    name = tmp;
+
+    db_names.insert(map<string, int>::value_type(name, 0));
 
     DataBase* db = new DataBase(name);
-    db->index = dbms->db_num + 1;
+    db->ModifyIndex('Z', db_num + 1);
 
-    dbms->databases[dbms->db_num] = db;
-    dbms->db_num++;
+    databases[db_num] = db;
+    db_num++;
 
     cout << "Database \"" << name << "\" has been created!" << endl;
 }
 
-void delete_db(DataBases* dbms, string name){
-    if(dbms->db_num == 0 || dbms->db_names.find(name) == dbms->db_names.end()){
+void DataBases::drop_db(string name){
+    if(!this->exist_db(name)){
         cout << "Database \"" << name << "\" doesn't exist!" << endl;
         return;
     }
     
-    dbms->db_names.erase(name);
-    for(int i = 0; i < dbms->db_num; i++){
-        if(dbms->databases[i]->name == name){
+    db_names.erase(name);
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetName() == name){
+            databases[i]->~DataBase();
             int j;
-            for(j = i; j < dbms->db_num-1; j++){
-                dbms->databases[j] = dbms->databases[j+1];
-                dbms->databases[j]->index--;
+            for(j = i; j < db_num-1; j++){
+                databases[j] = databases[j+1];
+                databases[j]->ModifyIndex('J', -1);
             }
-            delete(dbms->databases[j]);
-            dbms->db_num--;
-            break;
+            databases[j] = NULL;
+            db_num--;
+
+            cout << "Database \"" << name << "\" has been deleted!" << endl;
+            return;
         }
     }
-    
-}
 
-void alter_db(DataBases* dbms, string name, string new_name){
-    if(dbms->db_num == 0 || dbms->db_names.find(name) == dbms->db_names.end()){
+    cout << "Operation failure!(Delete)" << endl;
+}
+    
+
+void DataBases::alter_db(string name, string new_name){
+    if(!this->exist_db(name)){
         cout << "Database \"" << name << "\" doesn't exist!" << endl;
         return;
     }
     
-    if(dbms->db_names.find(new_name) != dbms->db_names.end()){
-        dbms->db_names[new_name]++;
-        new_name = new_name + '(' + to_string(dbms->db_names[new_name]) + ')';
+    string tmp = name;
+    while(db_names.find(tmp) != db_names.end()){
+        tmp = name;
+        db_names[tmp]++;
+        tmp = tmp + '(' + to_string(db_names[tmp]) + ')';
     }
-    dbms->db_names[new_name] = 0;
-    dbms->db_names.erase(name);
+    name = tmp;
 
-    for(int i = 0; i < dbms->db_num; i++){
-        if(dbms->databases[i]->name == name){
-            dbms->databases[i]->name = new_name;
+    db_names[new_name] = 0;
+    db_names.erase(name);
+
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetName() == name){
+            databases[i]->Rename(new_name);
 
             char* db_path;
             db_path = (char*)malloc(sizeof(char) * 64);
             getcwd(db_path, 64);
 
-            dbms->databases[i]->path = db_path + '/' + new_name;
+            databases[i]->UpdatePath(db_path + '/' + new_name);
             free(db_path);
 
-            break;
+            cout << "Database \"" << name << "\" has been renamed as \"" << new_name << "\"" << endl;
+
+            return;
         }
     }
+    cout << "Operation failure!(Alter)" << endl;
 }
 
-void select_db(DataBases* dbms, string name){
-    if(dbms->db_num == 0 || dbms->db_names.find(name) == dbms->db_names.end()){
+void DataBases::select_db(string name){
+    if(!this->exist_db(name)){
         cout << "Database \"" << name << "\" doesn't exist!" << endl;
         return;
     }
 
-    for(int i = 0; i < dbms->db_num; i++){
-        if(dbms->databases[i]->name == name){
-            cout << "------------------------------------------------------------------------" << endl;
-            cout << "|" << std::left << setw(20) << "Name" << "|" << std::left << setw(50) << dbms->databases[i]->name << "|" << endl;
-            cout << "------------------------------------------------------------------------" << endl;
-            cout << "|" << std::left << setw(20) << "Index" << "|" << std::left << setw(50) << dbms->databases[i]->index << "|" << endl;
-            cout << "------------------------------------------------------------------------" << endl;
-            cout << "|" << std::left << setw(20) << "Path" << "|" << std::left << setw(50) << dbms->databases[i]->path << "|" << endl;
-            cout << "------------------------------------------------------------------------" << endl;
-            cout << "|" << std::left << setw(20) << "Table capacity" << "|" << std::left << setw(50) << dbms->databases[i]->tb_capacity << "|" << endl;
-            cout << "------------------------------------------------------------------------" << endl;
-            cout << "|" << std::left << setw(20) << "Table num" << "|" << std::left << setw(50) << dbms->databases[i]->table_num << "|" << endl;
-            cout << "------------------------------------------------------------------------" << endl;
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetName() == name){
+            databases[i]->Show_Info();
             break;
         }
     }
 }
 
-void show_db(DataBases* dbms){
-    cout << "There are " << dbms->db_num << " databases now." << endl;
+void DataBases::show_db(){
+    cout << "There are " << db_num << " databases now." << endl;
     map<string, int>::iterator it;
-    for (it = dbms->db_names.begin(); it != dbms->db_names.end(); it++){
+    for (it = db_names.begin(); it != db_names.end(); it++){
         cout << it->first << endl;
     }
+}
+
+bool DataBases::exist_db(string name){
+    return !(db_num == 0 || db_names.find(name) == db_names.end());
+}
+
+void DataBases::use_db(string name){
+    if(!this->exist_db(name)){
+        cout << "Database \"" << name << "\" doesn't exist!" << endl;
+        return;
+    }
+
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetName() == name){
+            databases[i]->UpdatePath(db_path);
+            cout << "The currently used database is \"" << name << "\"!" << endl;
+            return;
+        }
+    }
+}
+
+void DataBases::create_tb_port(){
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetPath() == db_path){
+            string name;
+            cin >> name;
+            databases[i]->create_tb(name);
+            return;
+        }
+    }
+
+    cout << "No database is currently in use!" << endl;
 }

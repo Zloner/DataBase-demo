@@ -6,10 +6,10 @@ void Create(DataBases* dbms){
     if(object == "database" || object == "DATABASE") {
         string name;
         cin >> name;
-        create_db(dbms, name);
+        dbms->create_db(name);
     }
     else if(object == "table" || object == "TABLE"){
-
+        dbms->create_tb_port();
     }
     else{
         cout << "illegal instruction" << endl;
@@ -17,13 +17,13 @@ void Create(DataBases* dbms){
     return;
 }
 
-void Delete(DataBases* dbms){
+void Drop(DataBases* dbms){
     string object;
     cin >> object;
     if(object == "database" || object == "DATABASE") {
         string name;
         cin >> name;
-        delete_db(dbms, name);
+        dbms->drop_db(name);
     }
     else if(object == "table" || object == "TABLE"){
 
@@ -40,7 +40,7 @@ void Alter(DataBases* dbms){
     if(object == "database" || object == "DATABASE") {
         string name, new_name;
         cin >> name >> new_name;
-        alter_db(dbms, name, new_name);
+        dbms->alter_db(name, new_name);
     }
     else if(object == "table" || object == "TABLE"){
 
@@ -57,7 +57,7 @@ void Select(DataBases* dbms){
     if(object == "database" || object == "DATABASE") {
         string name;
         cin >> name;
-        select_db(dbms, name);
+        dbms->select_db(name);
     }
     else if(object == "table" || object == "TABLE"){
 
@@ -72,7 +72,7 @@ void Show(DataBases* dbms){
     string object;
     cin >> object;
     if(object == "database" || object == "DATABASE") {
-        show_db(dbms);
+        dbms->show_db();
     }
     else if(object == "table" || object == "TABLE"){
 
@@ -81,4 +81,11 @@ void Show(DataBases* dbms){
         cout << "illegal instruction" << endl;
     }
     return;
+}
+
+void Use(DataBases* dbms){
+    string name;
+    cin >> name;
+    
+    dbms->use_db(name); 
 }
