@@ -37,6 +37,9 @@ int main(){
         else if(op == "USE" || op == "use"){
             Use(DBMS);
         }
+        else if(op == "INSERT" || op == "insert"){
+            InsertInto(DBMS);
+        }
         else if(op == "EXIT" || op == "exit"){
             cout << "== EXIT DBMS ==" << endl;
             delete(DBMS);

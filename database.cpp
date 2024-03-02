@@ -31,7 +31,7 @@ DataBase::~DataBase(){
     vector<Table*>().swap(tables);
 }
 
-void DataBase::Show_Info(){
+void DataBase::ShowInfo(){
     cout << "------------------------------------------------------------------------" << endl;
     cout << "|" << std::left << setw(20) << "Name" << "|" << std::left << setw(50) << name << "|" << endl;
     cout << "------------------------------------------------------------------------" << endl;
@@ -94,11 +94,81 @@ void DataBase::create_tb(string name){
     tb->Create();
     tb->UpdatePath(this->GetPath() + '/' + name);
 
-    tables[tb_num] = tb;
+    tables.push_back(tb);
     tb_num++;
 
     cout << "Table \"" << name << "\" has been created!" << endl;
 }
+
+void DataBase::select_tb(string name){
+    if(!this->exist_tb(name)){
+        cout << "Table \"" << name << "\" doesn't exist!" << endl;
+        return;
+    }
+
+    for(int i = 0; i < tb_num; i++){
+        if(tables[i]->GetName() == name){
+            tables[i]->PrintTable();
+            return;
+        }
+    }
+}
+
+bool DataBase::exist_tb(string name){
+    return !(tb_num == 0 || tb_names.find(name) == tb_names.end());
+}
+
+void DataBase::insert_into_tb(string name){
+    if(!this->exist_tb(name)){
+        cout << "Table \"" << name << "\" doesn't exist!" << endl;
+        return;
+    }
+
+    for(int i = 0; i < tb_num; i++){
+        if(tables[i]->GetName() == name){
+            tables[i]->Insert();
+            return;
+        }
+    }
+}
+
+void DataBase::show_tb(){
+    cout << "There are " << tb_num << " tables now." << endl;
+    map<string, int>::iterator it;
+    for (it = tb_names.begin(); it != tb_names.end(); it++){
+        cout << it->first << endl;
+    }
+}
+
+void DataBase::drop_tb(string name_tb){
+    if(!this->exist_tb(name_tb)){
+        cout << "Table \"" << name_tb << "\" doesn't exist!" << endl;
+        return;
+    }
+
+    tb_names.erase(name_tb);
+
+    for(int i = 0; i < tb_num; i++){
+        if(tables[i]->GetName() == name_tb){
+            tables[i]->~Table();
+            int j;
+            for(j = i; j < tb_num-1; j++)
+                tables[j] = tables[j+1];
+            tables.pop_back();
+            tb_num--;
+
+            cout << "Table \"" << name << "\" has been deleted!" << endl;
+            return;
+        }
+    }
+}
+
+
+
+
+
+
+
 
 
 
@@ -141,7 +211,7 @@ void DataBases::create_db(string name){
     DataBase* db = new DataBase(name);
     db->ModifyIndex('Z', db_num + 1);
 
-    databases[db_num] = db;
+    databases.push_back(db);
     db_num++;
 
     cout << "Database \"" << name << "\" has been created!" << endl;
@@ -162,7 +232,7 @@ void DataBases::drop_db(string name){
                 databases[j] = databases[j+1];
                 databases[j]->ModifyIndex('J', -1);
             }
-            databases[j] = NULL;
+            databases.pop_back();
             db_num--;
 
             cout << "Database \"" << name << "\" has been deleted!" << endl;
@@ -218,8 +288,8 @@ void DataBases::select_db(string name){
 
     for(int i = 0; i < db_num; i++){
         if(databases[i]->GetName() == name){
-            databases[i]->Show_Info();
-            break;
+            databases[i]->ShowInfo();
+            return;
         }
     }
 }
@@ -244,7 +314,7 @@ void DataBases::use_db(string name){
 
     for(int i = 0; i < db_num; i++){
         if(databases[i]->GetName() == name){
-            databases[i]->UpdatePath(db_path);
+            db_path = databases[i]->GetPath();
             cout << "The currently used database is \"" << name << "\"!" << endl;
             return;
         }
@@ -257,6 +327,56 @@ void DataBases::create_tb_port(){
             string name;
             cin >> name;
             databases[i]->create_tb(name);
+            return;
+        }
+    }
+
+    cout << "No database is currently in use!" << endl;
+}
+
+void DataBases::select_tb_port(){
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetPath() == db_path){
+            string name;
+            cin >> name;
+            databases[i]->select_tb(name);
+            return;
+        }
+    }
+
+    cout << "No database is currently in use!" << endl;
+}
+
+void DataBases::insert_into_port(){
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetPath() == db_path){
+            string name;
+            cin >> name;
+            databases[i]->insert_into_tb(name);
+            return;
+        }
+    }
+
+    cout << "No database is currently in use!" << endl;
+}
+
+void DataBases::show_tb_port(){
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetPath() == db_path){
+            databases[i]->show_tb();
+            return;
+        }
+    }
+
+    cout << "No database is currently in use!" << endl;
+}
+
+void DataBases::drop_tb_port(){
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetPath() == db_path){
+            string name;
+            cin >> name;
+            databases[i]->drop_tb(name);
             return;
         }
     }

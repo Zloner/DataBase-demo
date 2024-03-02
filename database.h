@@ -9,8 +9,6 @@
 #include <unistd.h>
 #include "table.h"
 
-
-
 using namespace std;
 
 class DataBase{
@@ -27,7 +25,7 @@ private:
 public:
     DataBase(string db_name);
     ~DataBase();
-    void Show_Info();
+    void ShowInfo();
     string GetName();
     void Rename(string new_name);
     void ModifyIndex(char mode, int x);
@@ -36,7 +34,11 @@ public:
     void ExpandDB();
 
     void create_tb(string name);
-    
+    void select_tb(string name);
+    bool exist_tb(string name);
+    void insert_into_tb(string name);
+    void show_tb();
+    void drop_tb(string name_tb);
 };
 
 class DataBases{
@@ -62,6 +64,10 @@ public:
     void use_db(string name);
 
     void create_tb_port();
+    void select_tb_port();
+    void insert_into_port();
+    void show_tb_port();
+    void drop_tb_port();
 };
 
 

@@ -13,5 +13,6 @@ void Alter(DataBases* dbms);
 void Select(DataBases* dbms);
 void Show(DataBases* dbms);
 void Use(DataBases* dbms);
+void InsertInto(DataBases* dbms);
 
 #endif

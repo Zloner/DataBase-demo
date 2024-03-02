@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <iomanip>
 
 using namespace std;
 
@@ -13,8 +14,10 @@ class Tuple{
 public:
     vector<string> data;
 
-    Tuple(){};
-    ~Tuple(){};
+    Tuple(int col_num);
+    ~Tuple();
+    void PrintLine();
+    void Create(int col_num);
 };
 
 class Table{
@@ -34,7 +37,11 @@ public:
     void ExpandTableHead(int x);
     void ExpandTuples(int x);
     void UpdatePath(string new_path);
-
+    string GetName();
+    void PrintTableHead();
+    void PrintTable();
+    void ShowInfo();
+    void Insert();
 };
 
 #endif

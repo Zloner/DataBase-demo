@@ -26,7 +26,7 @@ void Drop(DataBases* dbms){
         dbms->drop_db(name);
     }
     else if(object == "table" || object == "TABLE"){
-
+        dbms->drop_tb_port();
     }
     else{
         cout << "illegal instruction" << endl;
@@ -43,7 +43,7 @@ void Alter(DataBases* dbms){
         dbms->alter_db(name, new_name);
     }
     else if(object == "table" || object == "TABLE"){
-
+        
     }
     else{
         cout << "illegal instruction" << endl;
@@ -60,7 +60,7 @@ void Select(DataBases* dbms){
         dbms->select_db(name);
     }
     else if(object == "table" || object == "TABLE"){
-
+        dbms->select_tb_port();
     }
     else{
         cout << "illegal instruction" << endl;
@@ -75,7 +75,7 @@ void Show(DataBases* dbms){
         dbms->show_db();
     }
     else if(object == "table" || object == "TABLE"){
-
+        dbms->show_tb_port();
     }
     else{
         cout << "illegal instruction" << endl;
@@ -88,4 +88,8 @@ void Use(DataBases* dbms){
     cin >> name;
     
     dbms->use_db(name); 
+}
+
+void InsertInto(DataBases* dbms){
+    dbms->insert_into_port();
 }
