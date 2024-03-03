@@ -43,7 +43,7 @@ void Alter(DataBases* dbms){
         dbms->alter_db(name, new_name);
     }
     else if(object == "table" || object == "TABLE"){
-        
+        dbms->alter_tb_port();
     }
     else{
         cout << "illegal instruction" << endl;
@@ -91,5 +91,13 @@ void Use(DataBases* dbms){
 }
 
 void InsertInto(DataBases* dbms){
-    dbms->insert_into_port();
+    dbms->insert_into_tb_port();
+}
+
+void Delete(DataBases* dbms){
+    dbms->delete_tb_port();
+}
+
+void Update(DataBases* dbms){
+    dbms->update_tb_port();
 }

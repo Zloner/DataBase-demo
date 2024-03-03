@@ -8,13 +8,13 @@ DataBase::DataBase(string db_name){
     db_path = (char*)malloc(sizeof(char) * 64);
     getcwd(db_path, 64);
 
-    path = db_path;
-    path.push_back('/');
-    path = path + db_name;
+    m_path = db_path;
+    m_path.push_back('/');
+    m_path = m_path + db_name;
 
     free(db_path);
 
-    name = db_name;
+    m_name = db_name;
 
     tb_names.clear();
     tb_capacity = INIT_CAPACITY;
@@ -33,11 +33,11 @@ DataBase::~DataBase(){
 
 void DataBase::ShowInfo(){
     cout << "------------------------------------------------------------------------" << endl;
-    cout << "|" << std::left << setw(20) << "Name" << "|" << std::left << setw(50) << name << "|" << endl;
+    cout << "|" << std::left << setw(20) << "Name" << "|" << std::left << setw(50) << m_name << "|" << endl;
     cout << "------------------------------------------------------------------------" << endl;
-    cout << "|" << std::left << setw(20) << "Index" << "|" << std::left << setw(50) << index << "|" << endl;
+    cout << "|" << std::left << setw(20) << "Index" << "|" << std::left << setw(50) << m_index << "|" << endl;
     cout << "------------------------------------------------------------------------" << endl;
-    cout << "|" << std::left << setw(20) << "Path" << "|" << std::left << setw(50) << path << "|" << endl;
+    cout << "|" << std::left << setw(20) << "Path" << "|" << std::left << setw(50) << m_path << "|" << endl;
     cout << "------------------------------------------------------------------------" << endl;
     cout << "|" << std::left << setw(20) << "Table capacity" << "|" << std::left << setw(50) << tb_capacity << "|" << endl;
     cout << "------------------------------------------------------------------------" << endl;
@@ -46,29 +46,29 @@ void DataBase::ShowInfo(){
 }
 
 string DataBase::GetName(){
-    return name;
+    return m_name;
 }
 
 void DataBase::ModifyIndex(char mode, int x){
     if(mode == 'J'){
-        index = index + x;
+        m_index = m_index + x;
     }
     else if(mode == 'Z'){
-        index = x;
+        m_index = x;
     }
 }
 
 void DataBase::Rename(string new_name){
-    name = new_name;
+    m_name = new_name;
     return;
 }
 
 void DataBase::UpdatePath(string new_path){
-    path = new_path;
+    m_path = new_path;
 }
 
 string DataBase::GetPath(){
-    return path;
+    return m_path;
 }
 
 void DataBase::ExpandDB(){
@@ -140,16 +140,16 @@ void DataBase::show_tb(){
     }
 }
 
-void DataBase::drop_tb(string name_tb){
-    if(!this->exist_tb(name_tb)){
-        cout << "Table \"" << name_tb << "\" doesn't exist!" << endl;
+void DataBase::drop_tb(string name){
+    if(!this->exist_tb(name)){
+        cout << "Table \"" << name << "\" doesn't exist!" << endl;
         return;
     }
 
-    tb_names.erase(name_tb);
+    tb_names.erase(name);
 
     for(int i = 0; i < tb_num; i++){
-        if(tables[i]->GetName() == name_tb){
+        if(tables[i]->GetName() == name){
             tables[i]->~Table();
             int j;
             for(j = i; j < tb_num-1; j++)
@@ -163,7 +163,64 @@ void DataBase::drop_tb(string name_tb){
     }
 }
 
+void DataBase::alter_tb(string name, string new_name){
+    if(!exist_tb(name)){
+        cout << "Table \"" << name << "\" doesn't exist!" << endl;
+        return;
+    }
 
+    string tmp;
+    tmp = new_name;
+    while(tb_names.find(tmp) != tb_names.end()){
+        tmp = new_name;
+        tb_names[tmp]++;
+        tmp = tmp + '(' + to_string(tb_names[tmp]) + ')';
+    }
+    new_name = tmp;
+
+    tb_names[new_name] = 0;
+    tb_names.erase(name);
+
+    for(int i = 0; i < tb_num; i++){
+        if(tables[i]->GetName() == name){
+            char* tpath = (char*)malloc(sizeof(char) * 64);
+            getcwd(tpath, 64);
+
+            tables[i]->UpdatePath(tpath + '/' + new_name);
+            tables[i]->Rename(new_name);
+
+            free(tpath);
+            cout << "Table \"" << name << "\" has rename as \"" << new_name << "\"." << endl;
+            return;
+        }
+    }
+}
+
+void DataBase::delete_tb_data(string name){
+    if(!exist_tb(name)){
+        cout << "Table \"" << name << "\" doesn't exist!" << endl;
+        return;
+    }
+
+    for(int i = 0 ; i < tb_num; i++){
+        if(tables[i]->GetName() == name){
+            tables[i]->DeleteData();
+        }
+    }
+}
+
+void DataBase::update_tb_data(string name){
+    if(!exist_tb(name)){
+        cout << "Table \"" << name << "\" doesn't exist!" << endl;
+        return;
+    }
+
+    for(int i = 0 ; i < tb_num; i++){
+        if(tables[i]->GetName() == name){
+            tables[i]->UpdateData();
+        }
+    }
+}
 
 
 
@@ -250,13 +307,13 @@ void DataBases::alter_db(string name, string new_name){
         return;
     }
     
-    string tmp = name;
+    string tmp = new_name;
     while(db_names.find(tmp) != db_names.end()){
-        tmp = name;
+        tmp = new_name;
         db_names[tmp]++;
         tmp = tmp + '(' + to_string(db_names[tmp]) + ')';
     }
-    name = tmp;
+    new_name = tmp;
 
     db_names[new_name] = 0;
     db_names.erase(name);
@@ -265,12 +322,12 @@ void DataBases::alter_db(string name, string new_name){
         if(databases[i]->GetName() == name){
             databases[i]->Rename(new_name);
 
-            char* db_path;
-            db_path = (char*)malloc(sizeof(char) * 64);
-            getcwd(db_path, 64);
+            char* dpath;
+            dpath = (char*)malloc(sizeof(char) * 64);
+            getcwd(dpath, 64);
 
-            databases[i]->UpdatePath(db_path + '/' + new_name);
-            free(db_path);
+            databases[i]->UpdatePath(dpath + '/' + new_name);
+            free(dpath);
 
             cout << "Database \"" << name << "\" has been renamed as \"" << new_name << "\"" << endl;
 
@@ -292,6 +349,7 @@ void DataBases::select_db(string name){
             return;
         }
     }
+    cout << "Operation failure!(Select)" << endl;
 }
 
 void DataBases::show_db(){
@@ -319,6 +377,7 @@ void DataBases::use_db(string name){
             return;
         }
     }
+    cout << "Operation failure!(Use)" << endl;
 }
 
 void DataBases::create_tb_port(){
@@ -347,7 +406,7 @@ void DataBases::select_tb_port(){
     cout << "No database is currently in use!" << endl;
 }
 
-void DataBases::insert_into_port(){
+void DataBases::insert_into_tb_port(){
     for(int i = 0; i < db_num; i++){
         if(databases[i]->GetPath() == db_path){
             string name;
@@ -382,4 +441,37 @@ void DataBases::drop_tb_port(){
     }
 
     cout << "No database is currently in use!" << endl;
+}
+
+void DataBases::alter_tb_port(){
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetPath() == db_path){
+            string name, new_name;
+            cin >> name >> new_name;
+            databases[i]->alter_tb(name, new_name);
+            return;
+        }
+    }
+}
+
+void DataBases::delete_tb_port(){
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetPath() == db_path){
+            string name;
+            cin >> name;
+            databases[i]->delete_tb_data(name);
+            return;
+        }
+    }
+}
+
+void DataBases::update_tb_port(){
+    for(int i = 0; i < db_num; i++){
+        if(databases[i]->GetPath() == db_path){
+            string name;
+            cin >> name;
+            databases[i]->update_tb_data(name);
+            return;
+        }
+    }
 }

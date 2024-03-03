@@ -1,12 +1,12 @@
 #include "table.h"
 Table::Table(string name){
-    this->name = name;
-    this->path = "";
+    this->m_name = name;
+    this->m_path = "";
     column_capacity = INIT_CAPACITY;
-    line_capacity = INIT_CAPACITY;
+    row_capacity = INIT_CAPACITY;
 
     table_head.reserve(column_capacity);
-    tuples.reserve(line_capacity);
+    tuples.reserve(row_capacity);
 }
 
 Table::~Table(){
@@ -39,23 +39,27 @@ void Table::ExpandTableHead(int x){
 }
 
 void Table::ExpandTuples(int x){
-    line_capacity = x;
-    tuples.reserve(line_capacity);
+    row_capacity = x;
+    tuples.reserve(row_capacity);
 }
 
 void Table::UpdatePath(string new_path){
-    path = new_path;
+    m_path = new_path;
+}
+
+void Table::Rename(string new_name){
+    m_name = new_name;
 }
 
 string Table::GetName(){
-    return name;
+    return m_name;
 }
 
 void Table::ShowInfo(){
     cout << "------------------------------------------------------------------------" << endl;
-    cout << "|" << std::left << setw(20) << "Name" << "|" << std::left << setw(50) << name << "|" << endl;
+    cout << "|" << std::left << setw(20) << "Name" << "|" << std::left << setw(50) << m_name << "|" << endl;
     cout << "------------------------------------------------------------------------" << endl;
-    cout << "|" << std::left << setw(20) << "Path" << "|" << std::left << setw(50) << path << "|" << endl;
+    cout << "|" << std::left << setw(20) << "Path" << "|" << std::left << setw(50) << m_path << "|" << endl;
     cout << "------------------------------------------------------------------------" << endl;
     cout << "|" << std::left << setw(20) << "Column" << "|" << std::left << setw(50) << table_head.size() << "|" << endl;
     cout << "------------------------------------------------------------------------" << endl;
@@ -85,19 +89,59 @@ void Table::PrintTable(){
 }
 
 void Table::Insert(){
-    if(tuples.size() == line_capacity)
-        ExpandTuples(2 * line_capacity);
+    if(tuples.size() == row_capacity)
+        ExpandTuples(2 * row_capacity);
 
     Tuple* tmp = new Tuple(table_head.size());
 
     tmp->Create(table_head.size());
+    tmp->ModifyIndex('J', tuples.size()+1);
 
     tuples.push_back(tmp);
 }
 
+void Table::DeleteData(){
+    int target_row;
+    cin >> target_row;
+
+    if(target_row > tuples.size()){
+        cout << "The specified row was not found!" << endl;
+        return;
+    }
+
+    tuples[target_row - 1]->~Tuple();
+    for(int i = target_row - 1; i < tuples.size() - 1; i++){
+        tuples[i] = tuples[i+1]; 
+        tuples[i]->ModifyIndex('Z', -1);
+    }
+    tuples.pop_back();
+
+    cout << "The " << target_row << "row of data has been deleted." << endl;
+}
+
+void Table::UpdateData(){
+    int target_row;
+    cin >> target_row;
+
+    if(target_row > tuples.size()){
+        cout << "The specified row was not found!" << endl;
+        return;
+    }
+
+    tuples[target_row - 1]->Update();
+
+    cout << "The data in row " << target_row << " is modified successfully." << endl;
+
+}
+
+
+
+
 
 Tuple::Tuple(int col_num){
     data.reserve(col_num);
+    data.clear();
+    m_index = 0;
 }
 
 Tuple::~Tuple(){
@@ -119,3 +163,19 @@ void Tuple::Create(int col_num){
         data.push_back(data_in);
     }
 }
+
+void Tuple::Update(){
+    string data_in;
+    for(int i = 0; i < data.size(); i++){
+        cin >> data_in;
+        data[i] = data_in;
+    }
+}
+
+void Tuple::ModifyIndex(char mode, int x){
+    if(mode == 'Z')
+        m_index = x;
+    else if(mode == 'J')
+        m_index = m_index + x;
+}
+

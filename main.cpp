@@ -40,6 +40,12 @@ int main(){
         else if(op == "INSERT" || op == "insert"){
             InsertInto(DBMS);
         }
+        else if(op == "DELETE" || op == "delete"){
+            Delete(DBMS);
+        }
+        else if(op == "UPDATE" || op == "update"){
+            Update(DBMS);
+        }
         else if(op == "EXIT" || op == "exit"){
             cout << "== EXIT DBMS ==" << endl;
             delete(DBMS);

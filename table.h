@@ -13,21 +13,24 @@ using namespace std;
 class Tuple{
 public:
     vector<string> data;
+    int m_index;
 
     Tuple(int col_num);
     ~Tuple();
     void PrintLine();
     void Create(int col_num);
+    void Update();
+    void ModifyIndex(char mode, int x);
 };
 
 class Table{
 private:
-    string path;
-    string name;
+    string m_path;
+    string m_name;
     vector<string> table_head;
     vector<Tuple*> tuples;
     int column_capacity;
-    int line_capacity;
+    int row_capacity;
     
 
 public:
@@ -37,11 +40,14 @@ public:
     void ExpandTableHead(int x);
     void ExpandTuples(int x);
     void UpdatePath(string new_path);
+    void Rename(string new_name);
     string GetName();
     void PrintTableHead();
     void PrintTable();
     void ShowInfo();
     void Insert();
+    void DeleteData();
+    void UpdateData();
 };
 
 #endif

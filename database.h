@@ -13,9 +13,9 @@ using namespace std;
 
 class DataBase{
 private:
-    string path;
-    string name;
-    int index;
+    string m_path;
+    string m_name;
+    int m_index;
 
     map<string, int> tb_names;
     vector<Table*> tables;
@@ -38,7 +38,10 @@ public:
     bool exist_tb(string name);
     void insert_into_tb(string name);
     void show_tb();
-    void drop_tb(string name_tb);
+    void drop_tb(string name);
+    void alter_tb(string name, string new_name);
+    void delete_tb_data(string name);
+    void update_tb_data(string name);
 };
 
 class DataBases{
@@ -65,9 +68,12 @@ public:
 
     void create_tb_port();
     void select_tb_port();
-    void insert_into_port();
+    void insert_into_tb_port();
     void show_tb_port();
     void drop_tb_port();
+    void alter_tb_port();
+    void delete_tb_port();
+    void update_tb_port();
 };
 
 

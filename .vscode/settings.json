@@ -1,0 +1,10 @@
+{
+    "C_Cpp.errorSquiggles": "enabled",
+    "files.associations": {
+        "iostream": "cpp",
+        "typeinfo": "cpp",
+        "iomanip": "cpp",
+        "ostream": "cpp",
+        "string": "cpp"
+    }
+}
