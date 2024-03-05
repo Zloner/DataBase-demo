@@ -7,7 +7,7 @@
 5. alter database ***database_name*** ***database_new_name***
 6. alter table ***table_name*** ***table_new_name***
 7. select database ***database_name***
-8. select table ***table_name***
+8. select table ***table_name*** *** */target_attribute=target_value***
 9. show database
 10. show table
 11. use ***database_name***
