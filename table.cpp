@@ -95,7 +95,7 @@ void Table::Insert(){
     Tuple* tmp = new Tuple(table_head.size());
 
     tmp->Create(table_head.size());
-    tmp->ModifyIndex('J', tuples.size()+1);
+    tmp->ModifyIndex(tuples.size()+1);
 
     tuples.push_back(tmp);
 }
@@ -112,7 +112,8 @@ void Table::DeleteData(){
     tuples[target_row - 1]->~Tuple();
     for(int i = target_row - 1; i < tuples.size() - 1; i++){
         tuples[i] = tuples[i+1]; 
-        tuples[i]->ModifyIndex('Z', -1);
+        int t = tuples[i]->GetIndex();
+        tuples[i]->ModifyIndex(t-1);
     }
     tuples.pop_back();
 
@@ -132,6 +133,33 @@ void Table::UpdateData(){
 
     cout << "The data in row " << target_row << " is modified successfully." << endl;
 
+}
+
+void Table::PrintTargetRow(string attr, string val){
+    int key = -1;
+    for(int i = 0; i < table_head.size(); i++){
+        if(table_head[i] == attr){
+            key = i;
+            break;
+        }
+    }
+    if(key == -1){
+        cout << "Specified attribute not found. " << endl;
+        return; 
+    }
+
+    string frame(21 * table_head.size() + 1, '-');
+
+    cout << frame << endl;
+    PrintTableHead();
+    cout << frame << endl;
+
+    for(int i = 0; i < tuples.size(); i++){
+        if(tuples[i]->data[key] == val){
+            tuples[i]->PrintLine();
+            cout << frame << endl;
+        }
+    }
 }
 
 
@@ -172,10 +200,11 @@ void Tuple::Update(){
     }
 }
 
-void Tuple::ModifyIndex(char mode, int x){
-    if(mode == 'Z')
-        m_index = x;
-    else if(mode == 'J')
-        m_index = m_index + x;
+int Tuple::GetIndex(){
+    return m_index;
+}
+
+void Tuple::ModifyIndex(int x){
+    m_index = x;
 }
 

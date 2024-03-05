@@ -10,6 +10,11 @@ using namespace std;
 
 #define INIT_CAPACITY 5
 
+typedef struct{
+    int count = 0;
+    int index = 0;
+}Index;
+
 class Tuple{
 public:
     vector<string> data;
@@ -20,7 +25,8 @@ public:
     void PrintLine();
     void Create(int col_num);
     void Update();
-    void ModifyIndex(char mode, int x);
+    int GetIndex();
+    void ModifyIndex(int x);
 };
 
 class Table{
@@ -48,6 +54,9 @@ public:
     void Insert();
     void DeleteData();
     void UpdateData();
+    void PrintTargetRow(string attr, string val);
 };
+
+
 
 #endif

@@ -49,13 +49,12 @@ string DataBase::GetName(){
     return m_name;
 }
 
-void DataBase::ModifyIndex(char mode, int x){
-    if(mode == 'J'){
-        m_index = m_index + x;
-    }
-    else if(mode == 'Z'){
-        m_index = x;
-    }
+int DataBase::GetIndex(){
+    return m_index;
+}
+
+void DataBase::ModifyIndex(int x){
+    m_index = x;
 }
 
 void DataBase::Rename(string new_name){
@@ -106,10 +105,26 @@ void DataBase::select_tb(string name){
         return;
     }
 
+    int key = 0;
     for(int i = 0; i < tb_num; i++){
         if(tables[i]->GetName() == name){
-            tables[i]->PrintTable();
-            return;
+            key = i;
+            break;
+        }
+    }
+
+    string condition;
+    cin >> condition;
+    if(condition == "*"){
+        tables[key]->PrintTable();
+    }
+    else{
+        for(int i = 0; i < condition.size(); i++){
+            if(condition[i] == '='){
+                string tar_attr = condition.substr(0, i);
+                string tar_val = condition.substr(i+1, condition.size()-1);
+                tables[key]->PrintTargetRow(tar_attr, tar_val);
+            }
         }
     }
 }
@@ -266,7 +281,7 @@ void DataBases::create_db(string name){
     db_names.insert(map<string, int>::value_type(name, 0));
 
     DataBase* db = new DataBase(name);
-    db->ModifyIndex('Z', db_num + 1);
+    db->ModifyIndex(db_num + 1);
 
     databases.push_back(db);
     db_num++;
@@ -287,7 +302,8 @@ void DataBases::drop_db(string name){
             int j;
             for(j = i; j < db_num-1; j++){
                 databases[j] = databases[j+1];
-                databases[j]->ModifyIndex('J', -1);
+                int t = databases[j]->GetIndex();
+                databases[j]->ModifyIndex(t-1);
             }
             databases.pop_back();
             db_num--;

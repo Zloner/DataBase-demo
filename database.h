@@ -28,7 +28,8 @@ public:
     void ShowInfo();
     string GetName();
     void Rename(string new_name);
-    void ModifyIndex(char mode, int x);
+    int GetIndex();
+    void ModifyIndex(int x);
     void UpdatePath(string new_path);
     string GetPath();
     void ExpandDB();
