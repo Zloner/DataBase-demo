@@ -5,15 +5,44 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <map>
+#include <string.h>
 
 using namespace std;
 
 #define INIT_CAPACITY 5
 
-typedef struct{
-    int count = 0;
-    int index = 0;
-}Index;
+class Stats{
+public:
+    int m_index;
+    string m_type;
+};
+
+class CustomData{
+private:
+    void* ptr{nullptr};
+public:
+    
+    CustomData(){}
+    ~CustomData(){
+        free(ptr);
+    }
+    template<class T>
+    void AssignValue(T data){
+        ptr = &data;
+    }
+    template<class T>
+    T GetValue(){
+        T *result = (T*)ptr;
+        return *result;
+    }
+    template <class T>
+    T ReadValue(std::istream &stream){
+        T i;
+        stream >> i;
+        return i;
+    }
+};
 
 class Tuple{
 public:
@@ -22,9 +51,10 @@ public:
 
     Tuple(int col_num);
     ~Tuple();
-    void PrintLine();
-    void Create(int col_num);
-    void Update();
+    void PrintLine(map<string, Stats*>* tbh);
+    void PrintData(string type, int index);
+    void Create(map<string, Stats*>* tbh);
+    void Update(map<string, Stats*>* tbh);
     int GetIndex();
     void ModifyIndex(int x);
 };
@@ -33,7 +63,8 @@ class Table{
 private:
     string m_path;
     string m_name;
-    vector<string> table_head;
+
+    map<string, Stats*> table_head;
     vector<Tuple*> tuples;
     int column_capacity;
     int row_capacity;
@@ -42,7 +73,7 @@ private:
 public:
     Table(string name);
     ~Table();
-    void Create();
+    bool Create();
     void ExpandTableHead(int x);
     void ExpandTuples(int x);
     void UpdatePath(string new_path);
@@ -52,11 +83,13 @@ public:
     void PrintTable();
     void ShowInfo();
     void Insert();
-    void DeleteData();
-    void UpdateData();
-    void PrintTargetRow(string attr, string val);
+    void DeleteData(string stats, string val);
+    void UpdateData(string stats, string val);
+    vector<int> SelectRow(string stats, string val);
+    void PrintTargetRow(string stats, string val);
+
 };
 
-
+void analyse(char* expression, char* attr, char* type);
 
 #endif

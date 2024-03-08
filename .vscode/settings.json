@@ -5,6 +5,9 @@
         "typeinfo": "cpp",
         "iomanip": "cpp",
         "ostream": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "*.tcc": "cpp",
+        "unordered_map": "cpp",
+        "string_view": "cpp"
     }
 }

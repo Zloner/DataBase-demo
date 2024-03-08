@@ -15,10 +15,8 @@ class DataBase{
 private:
     string m_path;
     string m_name;
-    int m_index;
 
-    map<string, int> tb_names;
-    vector<Table*> tables;
+    map<string, Table*> tables;
     int tb_capacity;
     int tb_num;
 
@@ -28,8 +26,6 @@ public:
     void ShowInfo();
     string GetName();
     void Rename(string new_name);
-    int GetIndex();
-    void ModifyIndex(int x);
     void UpdatePath(string new_path);
     string GetPath();
     void ExpandDB();
@@ -48,12 +44,12 @@ public:
 class DataBases{
 private:
     string db_path;
-
-    vector<DataBase*> databases;
-    map<string, int> db_names;
+    string db_name;
     int db_num;
     int db_capacity;
 
+    map<string, DataBase*> databases;
+    
 public:
     DataBases();
     ~DataBases();
