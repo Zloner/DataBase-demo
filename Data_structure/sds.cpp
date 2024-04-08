@@ -1,12 +1,24 @@
 #include "sds.h"
 
+Sdshdr::Sdshdr(){
+    flag = 0;
+    buf = NULL;
+}
+
+Sdshdr::~Sdshdr(){
+    flag = 0;
+    if(buf != NULL){
+        free(buf);
+    }
+}
+
 char Sdshdr::sdsReqType(){
     return flag & 0x07;
 }
 
 void Sdshdr::sdsSetType(size_t initlen){
     //flag与类型值进行异或操作，保证高5位不变，低3位变为类型值
-    if(initlen < 32 && initlen > 0)
+    if(initlen < 32 && initlen >= 0)
         flag = flag ^ 0x00;
     else if(initlen >=32 && initlen < 256)
         flag = flag ^ 0x01;
@@ -32,6 +44,84 @@ int Sdshdr::sdsHdrSize(){
         return 17;
     else
         return -1;
+}
+
+char * Sdshdr::sdsReqBuf(){
+    return buf;
+}
+
+
+uint8_t Sdshdr5::sdsReqLen(){
+    return flag >> 3;
+}
+void Sdshdr5::sdsSetLen(size_t len_v){
+    len_v = len_v << 3;
+    flag = flag ^ len_v; 
+}
+void Sdshdr5::sdsCreate(){
+    buf = malloc(sdsHdrSize() + sdsReqLen());
+    if(buf == NULL){
+        perror("create buf");
+    }
+    buf[len] = '\0';
+}
+void Sdshdr5::sdsMakeRoom(size_t addlen){
+    size_t newlen = addlen + sdsReqLen();
+    if(newlen >= (2<<63)){
+        printf("len error");
+    }
+    else if(newlen >= (2>>31)){
+        create sdshdr64
+    }
+    else if(newlen >= (2>>15)){
+        create sdshdr32
+    }
+    else if(newlen >= 128){
+        create sdshdr16
+    }
+    else if(newleln >= 64){
+        create sdshdr8
+    }
+    else{
+        memcpy();
+    }
+
+}
+void Sdshdr5::sdsFree(){
+    if(buf != NULL){
+        free(buf);
+    }
+    sdsSetLen(0);     //len = 0
+}
+void Sdshdr5::sdsClear(){
+    sdsSetLen(0);
+    buf[0] = '\0';
+}
+
+
+uint8_t Sdshdr8::sdsReqLen(){
+    return len;
+}
+uint8_t Sdshdr8::sdsReqAlloc(){
+    return alloc;
+}
+void Sdshdr8::sdsSetLen(size_t len_v){
+    len = len_v;
+}
+void Sdshdr8::sdsSetAlloc(size_t alloc_v){
+    alloc = alloc_v;
+}
+void Sdshdr8::sdsCreate(){
+
+}
+void Sdshdr8::sdsMakeRoom(){
+
+}
+void Sdshdr8::sdsFree(){
+
+}
+void Sdshdr8::sdsClear(){
+
 }
 /*
 char sdsReqType(size_t len){
