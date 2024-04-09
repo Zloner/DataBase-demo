@@ -4,19 +4,40 @@
 #include <iostream>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sds.h>
+#include <type.h>
+#include "sds.h"
 
 using namespace std;
 
-struct zskiplistLevel{
+#define ZSKIPLIST_MAXLEVEL 64
+#define ZSKIPLIST_P 0.25
 
-}
+class zskiplist{
+private:
+    zskiplistNode* header, *tail;
+    unsigned long length;
+    int level;
+public:
+    int zslReqlevel();
+    zskiplistNode* zslReqHeader();
+    zskiplistNode* zslReqTail();
+    unsigned long zslReqLen();
+
+    void zslSetlength(unsigned long length_v);
+
+};
 
 class zskiplistNode{
-    sds ele;
+private:
+    Sdshdr ele;
     double score;
     zskiplistNode* backword;
-    zskiplistLevel* level;
-}
+    struct zskiplistLevel{
+        zskiplistNode* forword;
+        unsigned int span;
+    }*level;
+public:
+    int zslRandomlevel();
+};
 
 #endif

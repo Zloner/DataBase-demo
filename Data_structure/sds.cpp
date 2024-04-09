@@ -46,12 +46,16 @@ int Sdshdr::sdsHdrSize(){
         return -1;
 }
 
+void Sdshdr::sdscatsds(){
+
+}
+
 char * Sdshdr::sdsReqBuf(){
     return buf;
 }
 
 
-uint8_t Sdshdr5::sdsReqLen(){
+uint64_t Sdshdr5::sdsReqLen(){
     return flag >> 3;
 }
 void Sdshdr5::sdsSetLen(size_t len_v){
@@ -59,33 +63,22 @@ void Sdshdr5::sdsSetLen(size_t len_v){
     flag = flag ^ len_v; 
 }
 void Sdshdr5::sdsCreate(){
-    buf = malloc(sdsHdrSize() + sdsReqLen());
+    size_t len_v = sdsReqLen();
+    buf = (char*)malloc(len_v);
     if(buf == NULL){
         perror("create buf");
     }
-    buf[len] = '\0';
+    buf[len_v] = '\0';
 }
 void Sdshdr5::sdsMakeRoom(size_t addlen){
     size_t newlen = addlen + sdsReqLen();
-    if(newlen >= (2<<63)){
-        printf("len error");
-    }
-    else if(newlen >= (2>>31)){
-        create sdshdr64
-    }
-    else if(newlen >= (2>>15)){
-        create sdshdr32
-    }
-    else if(newlen >= 128){
-        create sdshdr16
-    }
-    else if(newleln >= 64){
-        create sdshdr8
+    if(newlen >= 32){
+        sdsSetLen(newlen);
+        buf = (char*)realloc(buf, newlen);
     }
     else{
-        memcpy();
+        perror("illegal length");
     }
-
 }
 void Sdshdr5::sdsFree(){
     if(buf != NULL){
@@ -99,10 +92,10 @@ void Sdshdr5::sdsClear(){
 }
 
 
-uint8_t Sdshdr8::sdsReqLen(){
+uint64_t Sdshdr8::sdsReqLen(){
     return len;
 }
-uint8_t Sdshdr8::sdsReqAlloc(){
+uint64_t Sdshdr8::sdsReqAlloc(){
     return alloc;
 }
 void Sdshdr8::sdsSetLen(size_t len_v){
@@ -112,16 +105,32 @@ void Sdshdr8::sdsSetAlloc(size_t alloc_v){
     alloc = alloc_v;
 }
 void Sdshdr8::sdsCreate(){
-
+    buf = (char*)malloc(sdsReqLen());
+    if(buf == NULL){
+        perror("create buf");
+    }
+    buf[len] = '\0';
 }
-void Sdshdr8::sdsMakeRoom(){
-
+void Sdshdr8::sdsMakeRoom(size_t addlen){
+    size_t newlen = addlen + len;
+    if(newlen >= 64){
+        len = newlen;
+        buf = (char*)realloc(buf, newlen);
+    }
+    else{
+        perror("illegal length");
+    }
 }
 void Sdshdr8::sdsFree(){
-
+    if(buf != NULL){
+        free(buf);
+    }
+    len = 0;
+    alloc = 0;
 }
 void Sdshdr8::sdsClear(){
-
+    buf[0] = '\0';
+    len = 0;
 }
 /*
 char sdsReqType(size_t len){

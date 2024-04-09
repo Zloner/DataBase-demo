@@ -1,3 +1,6 @@
+#ifndef __SDS_H__
+#define __SDS_H__
+
 #include <iostream>
 #include <string.h>
 #include "type.h"
@@ -12,9 +15,8 @@ using namespace std;
 
 typedef char* sds;
 
-template <class TYPE>
 class __attribute__((__packed__)) Sdshdr{
-private:
+protected:
     unsigned char flag;     //低3位存类型，sdshdr5的高5位存长度
     char* buf;
 public:
@@ -26,51 +28,53 @@ public:
     char sdsReqType();
     void sdsSetType(size_t initlen);
 
-    virtual TYPE sdsReqLen();
-    virtual TYPE sdsReqAlloc();
-    virtual void sdsSetLen(size_t len);
-    virtual void sdsSetAlloc(size_t alloc);
+    virtual uint64_t sdsReqLen(){};
+    virtual uint64_t sdsReqAlloc(){};
+    virtual void sdsSetLen(size_t len){};
+    virtual void sdsSetAlloc(size_t alloc){};
 
-    virtual void sdsCreate();
-    virtual void sdsMakeRoom();
-    virtual void sdsFree();
-    virtual void sdsClear();
+    virtual void sdsCreate(){};
+    virtual void sdsMakeRoom(){};
+    virtual void sdsFree(){};
+    virtual void sdsClear(){};
+
+    void sdscatsds();
 };
 
-class __attribute__((__packed__)) Sdshdr5 : public Sdshdr<uint8_t>{
+class __attribute__((__packed__)) Sdshdr5 : public Sdshdr{
 public:
-    uint8_t sdsReqLen();
-    void sdsSetLen(uint8_t len);
+    uint64_t sdsReqLen();
+    void sdsSetLen(size_t len_v);
 
     void sdsCreate();
-    void sdsMakeRoom();
+    void sdsMakeRoom(size_t addlen);
     void sdsFree();
     void sdsClear();
 };
 
-class __attribute__((__packed__)) sdshdr8 : public Sdshdr<uint8_t>{
+class __attribute__((__packed__)) Sdshdr8 : public Sdshdr{
 private:
     uint8_t len;        //以使用长度
     uint8_t alloc;      //总长度
 public:
-    uint8_t sdsReqLen();
-    uint8_t sdsReqAlloc();
-    void sdsSetLen(size_t len);
-    void sdsSetAlloc(size_t alloc);
+    uint64_t sdsReqLen();
+    uint64_t sdsReqAlloc();
+    void sdsSetLen(size_t len_v);
+    void sdsSetAlloc(size_t alloc_v);
 
     void sdsCreate();
-    void sdsMakeRoom();
+    void sdsMakeRoom(size_t addlen);
     void sdsFree();
     void sdsClear();
 };
 
-class __attribute__((__packed__)) sdshdr16 : public Sdshdr<uint16_t>{
+class __attribute__((__packed__)) sdshdr16 : public Sdshdr{
 private:
     uint16_t len;        //以使用长度
     uint16_t alloc;      //总长度
 public:
-    uint16_t sdsReqLen();
-    uint16_t sdsReqAlloc();
+    uint64_t sdsReqLen();
+    uint64_t sdsReqAlloc();
     void sdsSetLen(size_t len);
     void sdsSetAlloc(size_t alloc);
 
@@ -80,13 +84,13 @@ public:
     void sdsClear();
 };
 
-class __attribute__((__packed__)) sdshdr32 : public Sdshdr<uint32_t>{
+class __attribute__((__packed__)) sdshdr32 : public Sdshdr{
 private:
     uint32_t len;        //以使用长度
     uint32_t alloc;      //总长度
 public:
-    uint32_t sdsReqLen();
-    uint32_t sdsReqAlloc();
+    uint64_t sdsReqLen();
+    uint64_t sdsReqAlloc();
     void sdsSetLen(size_t len);
     void sdsSetAlloc(size_t alloc);
 
@@ -96,7 +100,7 @@ public:
     void sdsClear();
 };
 
-class __attribute__((__packed__)) sdshdr64 : public Sdshdr<uint64_t>{
+class __attribute__((__packed__)) sdshdr64 : public Sdshdr{
 private:
     uint64_t len;        //以使用长度
     uint64_t alloc;      //总长度
@@ -121,3 +125,5 @@ void clearsds(sds s);
 sds sdscatsds(sds s, const sds t);
 sds sdscatlen(sds s, const void *t, size_t len);
 sds sdsMakeRoomFor(sds s, size_t addlen);
+
+#endif
